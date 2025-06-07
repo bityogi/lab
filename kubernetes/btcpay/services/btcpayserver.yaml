@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: btcpayserver
+  namespace: btcpay
+spec:
+  selector:
+    app: btcpayserver
+  ports:
+    - name: http
+      port: 23000
+      targetPort: 23000
+  type: ClusterIP

@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: btcpayserver
+  namespace: btcpay
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: btcpayserver
+  template:
+    metadata:
+      labels:
+        app: btcpayserver
+    spec:
+      containers:
+        - name: btcpayserver
+          image: btcpayserver/btcpayserver:1.13.0
+          env:
+            - name: BTCPAY_NETWORK
+              valueFrom:
+                configMapKeyRef:
+                  name: btcpay-network-config
+                  key: BITCOIN_NETWORK
+            - name: RPC_USER
+              valueFrom:
+                secretKeyRef:
+                  name: rpc-secrets
+                  key: RPC_USER
+            - name: RPC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rpc-secrets
+                  key: RPC_PASSWORD
+            - name: BTCPAY_BTCRPCURL
+              value: "http://$(RPC_USER):$(RPC_PASSWORD)@bitcoind:8332/"
+            - name: BTCPAY_BTCEXPLORERURL
+              value: "http://nbxplorer:32838/"
+            - name: BTCPAY_BTCNBXPLORERURL
+              value: "http://nbxplorer:32838/"
+            - name: BTCPAY_BTCEXTERNALURL
+              value: "http://localhost:23000/"
+            - name: BTCPAY_LNDRPCURL
+              value: "https://lnd:8080/"
+            - name: BTCPAY_LNDGRPCURL
+              value: "lnd:10009"
+            - name: BTCPAY_LNDMACAROONDIR
+              value: "/lnd"
+            - name: BTCPAY_LNDCERTDIR
+              value: "/lnd"
+          ports:
+            - containerPort: 23000
+          volumeMounts:
+            - name: lnd-creds
+              mountPath: /lnd
+              readOnly: true
+      volumes:
+        - name: lnd-creds
+          emptyDir: {}

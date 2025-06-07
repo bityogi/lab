@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rtl
+  namespace: btcpay
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rtl
+  template:
+    metadata:
+      labels:
+        app: rtl
+    spec:
+      containers:
+        - name: rtl
+          image: shahanafarooqui/rtl:0.15.1
+          env:
+            - name: RTL_CONFIG_PATH
+              value: /data/RTL-Config.json
+            - name: LN_IMPLEMENTATION
+              value: LND
+            - name: LND_SERVER_URL
+              value: https://lnd:8080
+            - name: LND_GRPC_SERVER_URL
+              value: lnd:10009
+            - name: LND_MACAROON_PATH
+              value: /data/admin.macaroon
+            - name: LND_CERT_PATH
+              value: /data/tls.cert
+          ports:
+            - containerPort: 3000 # RTL Web UI
+          volumeMounts:
+            - name: rtl-data
+              mountPath: /data
+      volumes:
+        - name: rtl-data
+          emptyDir: {}

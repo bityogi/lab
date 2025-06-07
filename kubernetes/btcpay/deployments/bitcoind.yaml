@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bitcoind
+  namespace: btcpay
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bitcoind
+  template:
+    metadata:
+      labels:
+        app: bitcoind
+    spec:
+      containers:
+        - name: bitcoind
+          image: ruimarinho/bitcoin-core:26.0
+          args:
+            - "-printtoconsole"
+            - "-${BITCOIN_NETWORK}=1"
+            - "-rpcallowip=0.0.0.0/0"
+            - "-rpcbind=0.0.0.0"
+            - "-zmqpubrawblock=tcp://0.0.0.0:28332"
+            - "-zmqpubrawtx=tcp://0.0.0.0:28333"
+            - "-rpcuser=$(RPC_USER)"
+            - "-rpcpassword=$(RPC_PASSWORD)"
+          envFrom:
+            - configMapRef:
+                name: btcpay-network-config
+            - secretRef:
+                name: rpc-secrets
+          ports:
+            - containerPort: 8332 # RPC
+            - containerPort: 8333 # P2P
+            - containerPort: 28332 # ZMQ block
+            - containerPort: 28333 # ZMQ tx
+          volumeMounts:
+            - name: bitcoind-data
+              mountPath: /bitcoin/.bitcoin
+      volumes:
+        - name: bitcoind-data
+          persistentVolumeClaim:
+            claimName: bitcoind-data-pvc

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: btcpay-network-config
+  namespace: btcpay
+data:
+  BITCOIN_NETWORK: testnet
