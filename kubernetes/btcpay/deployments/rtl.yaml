@@ -13,12 +13,23 @@ spec:
       labels:
         app: rtl
     spec:
+      initContainers:
+        - name: copy-rtl-config
+          image: busybox
+          command:
+            ["sh", "-c", "cp /config/RTL-Config.json /data/RTL-Config.json"]
+          volumeMounts:
+            - name: rtl-config
+              mountPath: /config/RTL-Config.json
+              subPath: RTL-Config.json
+            - name: rtl-data
+              mountPath: /data
       containers:
         - name: rtl
           image: shahanafarooqui/rtl:0.15.1
           env:
             - name: RTL_CONFIG_PATH
-              value: /data/RTL-Config.json
+              value: /data
             - name: LN_IMPLEMENTATION
               value: LND
             - name: LND_SERVER_URL
@@ -35,5 +46,8 @@ spec:
             - name: rtl-data
               mountPath: /data
       volumes:
+        - name: rtl-config
+          configMap:
+            name: rtl-config
         - name: rtl-data
           emptyDir: {}

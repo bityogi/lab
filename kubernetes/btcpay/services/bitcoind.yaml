@@ -8,11 +8,11 @@ spec:
     app: bitcoind
   ports:
     - name: rpc
-      port: 8332
-      targetPort: 8332
+      port: 18332
+      targetPort: 18332
     - name: p2p
-      port: 8333
-      targetPort: 8333
+      port: 18333
+      targetPort: 18333
     - name: zmqblock
       port: 28332
       targetPort: 28332

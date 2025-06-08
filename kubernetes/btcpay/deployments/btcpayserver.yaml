@@ -13,6 +13,27 @@ spec:
       labels:
         app: btcpayserver
     spec:
+      initContainers:
+        - name: copy-lnd-creds
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+              while [ ! -f /lnd/data/chain/bitcoin/${BTCPAY_NETWORK:-testnet}/admin.macaroon ]; do
+                echo "Waiting for LND macaroon..."
+                sleep 2
+              done
+              cp /lnd/data/chain/bitcoin/${BTCPAY_NETWORK:-testnet}/admin.macaroon /lnd/admin.macaroon
+          env:
+            - name: BTCPAY_NETWORK
+              valueFrom:
+                configMapKeyRef:
+                  name: btcpay-network-config
+                  key: BITCOIN_NETWORK
+          volumeMounts:
+            - name: lnd-data
+              mountPath: /lnd
       containers:
         - name: btcpayserver
           image: btcpayserver/btcpayserver:1.13.0
@@ -32,6 +53,18 @@ spec:
                 secretKeyRef:
                   name: rpc-secrets
                   key: RPC_PASSWORD
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: rpc-secrets
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rpc-secrets
+                  key: POSTGRES_PASSWORD
+            - name: BTCPAY_POSTGRES
+              value: "Host=postgres;Port=5432;Username=$(POSTGRES_USER);Password=$(POSTGRES_PASSWORD);Database=btcpay"
             - name: BTCPAY_BTCRPCURL
               value: "http://$(RPC_USER):$(RPC_PASSWORD)@bitcoind:8332/"
             - name: BTCPAY_BTCEXPLORERURL
@@ -51,9 +84,10 @@ spec:
           ports:
             - containerPort: 23000
           volumeMounts:
-            - name: lnd-creds
+            - name: lnd-data
               mountPath: /lnd
-              readOnly: true
+              readOnly: false
       volumes:
-        - name: lnd-creds
-          emptyDir: {}
+        - name: lnd-data
+          persistentVolumeClaim:
+            claimName: lnd-data-pvc

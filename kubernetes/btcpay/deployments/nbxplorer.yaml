@@ -40,5 +40,12 @@ spec:
               value: "tcp://bitcoind:28332"
             - name: NBXPLORER_BTCZMQTX
               value: "tcp://bitcoind:28333"
+            - name: NBXPLORER_POSTGRES
+              value: "Host=postgres;Port=5432;Username=$(POSTGRES_USER);Password=$(POSTGRES_PASSWORD);Database=btcpay"
+          envFrom:
+            - configMapRef:
+                name: btcpay-network-config
+            - secretRef:
+                name: rpc-secrets
           ports:
             - containerPort: 32838

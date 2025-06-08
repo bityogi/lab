@@ -15,16 +15,21 @@ spec:
     spec:
       containers:
         - name: bitcoind
-          image: ruimarinho/bitcoin-core:26.0
-          args:
-            - "-printtoconsole"
-            - "-${BITCOIN_NETWORK}=1"
-            - "-rpcallowip=0.0.0.0/0"
-            - "-rpcbind=0.0.0.0"
-            - "-zmqpubrawblock=tcp://0.0.0.0:28332"
-            - "-zmqpubrawtx=tcp://0.0.0.0:28333"
-            - "-rpcuser=$(RPC_USER)"
-            - "-rpcpassword=$(RPC_PASSWORD)"
+          image: lightninglabs/bitcoin-core:27
+          command:
+            - sh
+            - -c
+            - |
+              exec bitcoind \
+                -datadir=/bitcoin/.bitcoin \
+                -printtoconsole \
+                -${BITCOIN_NETWORK}=1 \
+                -rpcallowip=0.0.0.0/0 \
+                -rpcbind=0.0.0.0 \
+                -zmqpubrawblock=tcp://0.0.0.0:28332 \
+                -zmqpubrawtx=tcp://0.0.0.0:28333 \
+                -rpcuser=$RPC_USER \
+                -rpcpassword=$RPC_PASSWORD
           envFrom:
             - configMapRef:
                 name: btcpay-network-config

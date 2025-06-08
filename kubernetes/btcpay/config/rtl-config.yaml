@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rtl-config
+  namespace: btcpay
+data:
+  RTL-Config.json: |
+    {
+      "multiPass": "password",
+      "port": "3000",
+      "defaultNodeIndex": 1,
+      "SSO": {
+        "rtlSSO": 0,
+        "rtlCookiePath": "",
+        "logoutRedirectLink": ""
+      },
+      "nodes": [
+        {
+          "index": 1,
+          "lnNode": "LND",
+          "lnImplementation": "LND",
+          "Authentication": {
+            "macaroonPath": "/data/admin.macaroon",
+            "certPath": "/data/tls.cert"
+          },
+          "Settings": {
+            "userPersona": "MERCHANT",
+            "themeMode": "DAY",
+            "themeColor": "PURPLE",
+            "bitcoindConfigPath": "",
+            "channelBackupPath": ""
+          }
+        }
+      ]
+    }
