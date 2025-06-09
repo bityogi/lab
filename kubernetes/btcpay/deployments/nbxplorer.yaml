@@ -25,7 +25,7 @@ spec:
             - name: NBXPLORER_BIND
               value: "0.0.0.0:32838"
             - name: NBXPLORER_BTCRPCURL
-              value: "http://bitcoind:8332/"
+              value: "http://bitcoind:18443/"
             - name: NBXPLORER_BTCRPCUSER
               valueFrom:
                 secretKeyRef:
@@ -40,6 +40,10 @@ spec:
               value: "tcp://bitcoind:28332"
             - name: NBXPLORER_BTCZMQTX
               value: "tcp://bitcoind:28333"
+            - name: NBXPLORER_BTCP2PENDPOINT
+              value: "bitcoind:18444"
+            - name: NBXPLORER_BTCNODEENDPOINT
+              value: "bitcoind:18444"
             - name: NBXPLORER_POSTGRES
               value: "Host=postgres;Port=5432;Username=$(POSTGRES_USER);Password=$(POSTGRES_PASSWORD);Database=btcpay"
           envFrom:

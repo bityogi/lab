@@ -29,12 +29,12 @@ After lnd is run for the first time you will create a wallet.
 Password: password
 Seed: ---------------BEGIN LND CIPHER SEED---------------
 
-1.  absorb 2. child 3. innocent 4. glimpse
-2.  travel 6. hamster 7. element 8. together
-3.  hole 10. bean 11. skill 12. razor
-4.  one 14. fun 15. relax 16. wool
-5.  problem 18. cigar 19. comfort 20. toy
-6.  master 22. document 23. grape 24. demise  
+1.  absent 2. impose 3. review 4. abuse
+2.  muffin 6. toy 7. opera 8. umbrella
+3.  lecture 10. ladder 11. double 12. february
+4.  lounge 14. holiday 15. icon 16. puppy
+5.  step 18. cave 19. surround 20. scare
+6.  crawl 22. metal 23. chalk 24. travel
     ---------------END LND CIPHER SEED-----------------
 
 Don't worry, this is just testnet so there isn't any real money here folks!

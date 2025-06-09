@@ -4,4 +4,4 @@ metadata:
   name: btcpay-network-config
   namespace: btcpay
 data:
-  BITCOIN_NETWORK: testnet
+  BITCOIN_NETWORK: regtest

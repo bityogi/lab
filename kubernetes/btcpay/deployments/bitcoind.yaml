@@ -23,21 +23,25 @@ spec:
               exec bitcoind \
                 -datadir=/bitcoin/.bitcoin \
                 -printtoconsole \
-                -${BITCOIN_NETWORK}=1 \
+                -regtest=1 \
+                -port=18444 \
+                -rpcport=18443 \
                 -rpcallowip=0.0.0.0/0 \
                 -rpcbind=0.0.0.0 \
                 -zmqpubrawblock=tcp://0.0.0.0:28332 \
                 -zmqpubrawtx=tcp://0.0.0.0:28333 \
                 -rpcuser=$RPC_USER \
-                -rpcpassword=$RPC_PASSWORD
+                -rpcpassword=$RPC_PASSWORD \
+                -listen=1 \
+                -whitelist=0.0.0.0/0
           envFrom:
             - configMapRef:
                 name: btcpay-network-config
             - secretRef:
                 name: rpc-secrets
           ports:
-            - containerPort: 8332 # RPC
-            - containerPort: 8333 # P2P
+            - containerPort: 18443 # RPC (regtest)
+            - containerPort: 18444 # P2P (regtest)
             - containerPort: 28332 # ZMQ block
             - containerPort: 28333 # ZMQ tx
           volumeMounts:

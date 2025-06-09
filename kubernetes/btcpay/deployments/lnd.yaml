@@ -24,7 +24,7 @@ spec:
                 --bitcoin.active \
                 --bitcoin.${BITCOIN_NETWORK} \
                 --bitcoin.node=bitcoind \
-                --bitcoind.rpchost=bitcoind:18332 \
+                --bitcoind.rpchost=bitcoind:18443 \
                 --bitcoind.rpcuser=$RPC_USER \
                 --bitcoind.rpcpass=$RPC_PASSWORD \
                 --bitcoind.zmqpubrawblock=tcp://bitcoind:28332 \

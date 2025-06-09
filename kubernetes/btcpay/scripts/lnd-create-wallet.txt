@@ -1,0 +1,8 @@
+kubectl -n btcpay run lnd-init --rm -it --image=lightninglabs/lnd:v0.18.0-beta --restart=Never -- \
+  lnd --bitcoin.active --bitcoin.regtest --bitcoin.node=bitcoind \
+  --bitcoind.rpchost=bitcoind:18443 \
+  --bitcoind.rpcuser=raptcuser \
+  --bitcoind.rpcpass=securepass \
+  --bitcoind.zmqpubrawblock=tcp://bitcoind:28332 \
+  --bitcoind.zmqpubrawtx=tcp://bitcoind:28333 \
+  --noseedbackup
