@@ -37,7 +37,7 @@ spec:
             - name: LND_GRPC_SERVER_URL
               value: lnd:10009
             - name: LND_MACAROON_PATH
-              value: /data/admin.macaroon
+              value: /data
             - name: LND_CERT_PATH
               value: /data/tls.cert
           ports:
@@ -50,4 +50,5 @@ spec:
           configMap:
             name: rtl-config
         - name: rtl-data
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: lnd-data-pvc

@@ -20,7 +20,7 @@ data:
           "lnNode": "LND",
           "lnImplementation": "LND",
           "Authentication": {
-            "macaroonPath": "/data/admin.macaroon",
+            "macaroonPath": "/data",
             "certPath": "/data/tls.cert"
           },
           "Settings": {
