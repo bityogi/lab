@@ -20,6 +20,23 @@ spec:
             - sh
             - -c
             - |
+              if [ ! -d "/bitcoin/.bitcoin/regtest/wallets/regtestwallet" ]; then
+                echo "Creating wallet..."
+                bitcoind \
+                  -datadir=/bitcoin/.bitcoin \
+                  -regtest=1 \
+                  -daemon \
+                  -rpcallowip=0.0.0.0/0 \
+                  -rpcbind=0.0.0.0 \
+                  -rpcuser=$RPC_USER \
+                  -rpcpassword=$RPC_PASSWORD \
+                  -disablewallet=0
+                sleep 3
+                bitcoin-cli -regtest -rpcuser=$RPC_USER -rpcpassword=$RPC_PASSWORD createwallet regtestwallet
+                bitcoin-cli -regtest -rpcuser=$RPC_USER -rpcpassword=$RPC_PASSWORD stop
+                sleep 3
+              fi
+
               exec bitcoind \
                 -datadir=/bitcoin/.bitcoin \
                 -printtoconsole \
@@ -33,7 +50,9 @@ spec:
                 -rpcuser=$RPC_USER \
                 -rpcpassword=$RPC_PASSWORD \
                 -listen=1 \
-                -whitelist=0.0.0.0/0
+                -whitelist=0.0.0.0/0 \
+                -disablewallet=0 \
+                -wallet=regtestwallet
           envFrom:
             - configMapRef:
                 name: btcpay-network-config
