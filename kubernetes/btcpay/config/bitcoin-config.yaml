@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bitcoind-config
+  namespace: btcpay
+data:
+  bitcoin.conf: |
+    regtest=1
+    printtoconsole=1
+    listen=1
+    whitelist=0.0.0.0/0
+    disablewallet=0
+
+    [regtest]
+    port=18444
+    rpcport=18443
+    rpcallowip=0.0.0.0/0
+    rpcbind=0.0.0.0
+    zmqpubrawblock=tcp://0.0.0.0:28332
+    zmqpubrawtx=tcp://0.0.0.0:28333
+    wallet=regtestwallet
+    rpcuser=raptcuser
+    rpcpassword=securepass

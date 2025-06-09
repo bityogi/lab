@@ -44,6 +44,8 @@ spec:
               value: "bitcoind:18444"
             - name: NBXPLORER_BTCNODEENDPOINT
               value: "bitcoind:18444"
+            - name: NBXPLORER_NOAUTH
+              value: "true"
             - name: NBXPLORER_POSTGRES
               value: "Host=postgres;Port=5432;Username=$(POSTGRES_USER);Password=$(POSTGRES_PASSWORD);Database=btcpay"
           envFrom:

@@ -66,11 +66,11 @@ spec:
             - name: BTCPAY_POSTGRES
               value: "Host=postgres;Port=5432;Username=$(POSTGRES_USER);Password=$(POSTGRES_PASSWORD);Database=btcpay"
             - name: BTCPAY_BTCRPCURL
-              value: "http://$(RPC_USER):$(RPC_PASSWORD)@bitcoind:8332/"
+              value: "http://raptcuser:securepass@bitcoind:18443/"
             - name: BTCPAY_BTCEXPLORERURL
-              value: "http://nbxplorer:32838/"
+              value: "http://raptcuser:securepass@nbxplorer:32838/"
             - name: BTCPAY_BTCNBXPLORERURL
-              value: "http://nbxplorer:32838/"
+              value: "http://raptcuser:securepass@nbxplorer:32838/"
             - name: BTCPAY_BTCEXTERNALURL
               value: "http://localhost:23000/"
             - name: BTCPAY_LNDRPCURL

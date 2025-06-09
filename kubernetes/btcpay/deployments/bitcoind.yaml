@@ -20,53 +20,33 @@ spec:
             - sh
             - -c
             - |
-              if [ ! -d "/bitcoin/.bitcoin/regtest/wallets/regtestwallet" ]; then
+              # Create wallet if not exists
+              if [ ! -d "/root/.bitcoin/regtest/wallets/regtestwallet" ]; then
                 echo "Creating wallet..."
-                bitcoind \
-                  -datadir=/bitcoin/.bitcoin \
-                  -regtest=1 \
-                  -daemon \
-                  -rpcallowip=0.0.0.0/0 \
-                  -rpcbind=0.0.0.0 \
-                  -rpcuser=$RPC_USER \
-                  -rpcpassword=$RPC_PASSWORD \
-                  -disablewallet=0
+                bitcoind -conf=/root/.bitcoin/bitcoin.conf -daemon
                 sleep 3
-                bitcoin-cli -regtest -rpcuser=$RPC_USER -rpcpassword=$RPC_PASSWORD createwallet regtestwallet
-                bitcoin-cli -regtest -rpcuser=$RPC_USER -rpcpassword=$RPC_PASSWORD stop
+                bitcoin-cli -regtest createwallet regtestwallet
+                bitcoin-cli -regtest stop
                 sleep 3
               fi
 
-              exec bitcoind \
-                -datadir=/bitcoin/.bitcoin \
-                -printtoconsole \
-                -regtest=1 \
-                -port=18444 \
-                -rpcport=18443 \
-                -rpcallowip=0.0.0.0/0 \
-                -rpcbind=0.0.0.0 \
-                -zmqpubrawblock=tcp://0.0.0.0:28332 \
-                -zmqpubrawtx=tcp://0.0.0.0:28333 \
-                -rpcuser=$RPC_USER \
-                -rpcpassword=$RPC_PASSWORD \
-                -listen=1 \
-                -whitelist=0.0.0.0/0 \
-                -disablewallet=0 \
-                -wallet=regtestwallet
-          envFrom:
-            - configMapRef:
-                name: btcpay-network-config
-            - secretRef:
-                name: rpc-secrets
+              # Start node
+              exec bitcoind -conf=/root/.bitcoin/bitcoin.conf
           ports:
-            - containerPort: 18443 # RPC (regtest)
-            - containerPort: 18444 # P2P (regtest)
+            - containerPort: 18443 # RPC
+            - containerPort: 18444 # P2P
             - containerPort: 28332 # ZMQ block
             - containerPort: 28333 # ZMQ tx
           volumeMounts:
             - name: bitcoind-data
-              mountPath: /bitcoin/.bitcoin
+              mountPath: /root/.bitcoin
+            - name: bitcoind-config
+              mountPath: /root/.bitcoin/bitcoin.conf
+              subPath: bitcoin.conf
       volumes:
         - name: bitcoind-data
           persistentVolumeClaim:
             claimName: bitcoind-data-pvc
+        - name: bitcoind-config
+          configMap:
+            name: bitcoind-config
