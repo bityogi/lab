@@ -81,8 +81,10 @@ spec:
               value: "/lnd"
             - name: BTCPAY_LNDCERTDIR
               value: "/lnd"
+            - name: ASPNETCORE_URLS
+              value: "http://0.0.0.0:23002"
           ports:
-            - containerPort: 23000
+            - containerPort: 23002
           volumeMounts:
             - name: lnd-data
               mountPath: /lnd

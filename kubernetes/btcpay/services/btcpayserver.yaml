@@ -8,6 +8,6 @@ spec:
     app: btcpayserver
   ports:
     - name: http
-      port: 23000
-      targetPort: 23000
+      port: 23002
+      targetPort: 23002
   type: ClusterIP

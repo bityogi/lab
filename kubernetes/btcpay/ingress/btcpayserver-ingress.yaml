@@ -16,4 +16,4 @@ spec:
               service:
                 name: btcpayserver
                 port:
-                  number: 23000
+                  number: 23002
