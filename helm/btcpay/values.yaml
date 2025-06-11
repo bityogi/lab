@@ -1,0 +1,91 @@
+apiVersion: v1
+global:
+  image:
+    repository: btcpayserver/btcpayserver
+    tag: "1.13.0"
+  namespace: btcpay
+  bitcoinNetwork: regtest
+
+bitcoind:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: lightninglabs/bitcoin-core
+    tag: "27"
+  service:
+    type: ClusterIP
+    port: 18443
+  persistence:
+    enabled: true
+    size: 10Gi
+
+db:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: postgres
+    tag: "15"
+  service:
+    type: ClusterIP
+    port: 5432
+  persistence:
+    enabled: true
+    size: 5Gi
+
+lnd:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: lightninglabs/lnd
+    tag: "0.18.0-beta"
+  service:
+    type: ClusterIP
+    ports:
+      grpc: 10009
+      rest: 8080
+      p2p: 9735
+  persistence:
+    enabled: true
+    size: 5Gi
+
+nbxplorer:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: nicolasdorier/nbxplorer
+    tag: "2.5.27"
+  service:
+    type: ClusterIP
+    port: 32838
+
+btcpayserver:
+  enabled: true
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 23002
+
+rtl:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: shahanafarooqui/rtl
+    tag: "0.15.1"
+  service:
+    type: ClusterIP
+    port: 3000
+
+ingress:
+  enabled: true
+  hosts:
+    - host: btcpay.local
+      paths:
+        - /
+    - host: rtl.local
+      paths:
+        - /
+
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}

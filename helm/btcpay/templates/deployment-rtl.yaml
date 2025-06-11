@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rtl
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rtl
+  template:
+    metadata:
+      labels:
+        app: rtl
+    spec:
+      initContainers:
+        - name: copy-rtl-config
+          image: busybox
+          command:
+            ["sh", "-c", "cp /config/RTL-Config.json /data/RTL-Config.json"]
+          volumeMounts:
+            - name: rtl-config
+              mountPath: /config/RTL-Config.json
+              subPath: RTL-Config.json
+            - name: rtl-data
+              mountPath: /data
+      containers:
+        - name: rtl
+          image: {{ .Values.rtl.image }}
+          env:
+            - name: RTL_CONFIG_PATH
+              value: /data
+            - name: LN_IMPLEMENTATION
+              value: LND
+            - name: LND_SERVER_URL
+              value: https://lnd:8080
+            - name: LND_GRPC_SERVER_URL
+              value: lnd:10009
+            - name: LND_MACAROON_PATH
+              value: /data
+            - name: LND_CERT_PATH
+              value: /data/tls.cert
+          ports:
+            - containerPort: 3000 # RTL Web UI
+          volumeMounts:
+            - name: rtl-data
+              mountPath: /data
+      volumes:
+        - name: rtl-config
+          configMap:
+            name: rtl-config
+        - name: rtl-data
+          persistentVolumeClaim:
+            claimName: {{ .Values.rtl.dataPVC }}

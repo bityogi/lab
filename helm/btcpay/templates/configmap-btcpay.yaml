@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: btcpay-config
+  namespace: btcpay
+data:
+  BTCPAY_NETWORK: regtest
+  BTCPAY_POSTGRES: "Host=postgres;Port=5432;Username=$(POSTGRES_USER);Password=$(POSTGRES_PASSWORD);Database=btcpay"
+  BTCPAY_BTCRPCURL: "http://raptcuser:securepass@bitcoind:18443/"
+  BTCPAY_BTCEXPLORERURL: "http://raptcuser:securepass@nbxplorer:32838/"
+  BTCPAY_BTCNBXPLORERURL: "http://raptcuser:securepass@nbxplorer:32838/"
+  BTCPAY_BTCEXTERNALURL: "http://localhost:23000/"
+  BTCPAY_LNDRPCURL: "https://lnd:8080/"
+  BTCPAY_LNDGRPCURL: "lnd:10009"
+  BTCPAY_LNDMACAROONDIR: "/lnd"
+  BTCPAY_LNDCERTDIR: "/lnd"
+  ASPNETCORE_URLS: "http://0.0.0.0:23002"

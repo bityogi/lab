@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bitcoind
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bitcoind
+  template:
+    metadata:
+      labels:
+        app: bitcoind
+    spec:
+      containers:
+        - name: bitcoind
+          image: {{ .Values.bitcoind.image }}
+          command:
+            - sh
+            - -c
+            - |
+              # Create wallet if not exists
+              if [ ! -d "/root/.bitcoin/regtest/wallets/regtestwallet" ]; then
+                echo "Creating wallet..."
+                bitcoind -conf=/root/.bitcoin/bitcoin.conf -daemon
+                sleep 3
+                bitcoin-cli -regtest createwallet regtestwallet
+                bitcoin-cli -regtest stop
+                sleep 3
+              fi
+
+              # Start node
+              exec bitcoind -conf=/root/.bitcoin/bitcoin.conf
+          ports:
+            - containerPort: 18443 # RPC
+            - containerPort: 18444 # P2P
+            - containerPort: 28332 # ZMQ block
+            - containerPort: 28333 # ZMQ tx
+          volumeMounts:
+            - name: bitcoind-data
+              mountPath: /root/.bitcoin
+            - name: bitcoind-config
+              mountPath: /root/.bitcoin/bitcoin.conf
+              subPath: bitcoin.conf
+      volumes:
+        - name: bitcoind-data
+          persistentVolumeClaim:
+            claimName: {{ .Values.pvc.bitcoind }}
+        - name: bitcoind-config
+          configMap:
+            name: {{ .Values.configmap.bitcoin }}

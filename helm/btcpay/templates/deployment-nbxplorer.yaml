@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nbxplorer
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nbxplorer
+  template:
+    metadata:
+      labels:
+        app: nbxplorer
+    spec:
+      containers:
+        - name: nbxplorer
+          image: nicolasdorier/nbxplorer:{{ .Values.nbxplorer.image.tag }}
+          env:
+            - name: NBXPLORER_NETWORK
+              valueFrom:
+                configMapKeyRef:
+                  name: btcpay-network-config
+                  key: BITCOIN_NETWORK
+            - name: NBXPLORER_BIND
+              value: "0.0.0.0:32838"
+            - name: NBXPLORER_BTCRPCURL
+              value: "http://bitcoind:18443/"
+            - name: NBXPLORER_BTCRPCUSER
+              valueFrom:
+                secretKeyRef:
+                  name: rpc-secrets
+                  key: RPC_USER
+            - name: NBXPLORER_BTCRPCPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rpc-secrets
+                  key: RPC_PASSWORD
+            - name: NBXPLORER_BTCZMQBLOCK
+              value: "tcp://bitcoind:28332"
+            - name: NBXPLORER_BTCZMQTX
+              value: "tcp://bitcoind:28333"
+            - name: NBXPLORER_BTCP2PENDPOINT
+              value: "bitcoind:18444"
+            - name: NBXPLORER_BTCNODEENDPOINT
+              value: "bitcoind:18444"
+            - name: NBXPLORER_NOAUTH
+              value: "true"
+            - name: NBXPLORER_POSTGRES
+              value: "Host=postgres;Port=5432;Username=$(POSTGRES_USER);Password=$(POSTGRES_PASSWORD);Database=btcpay"
+          envFrom:
+            - configMapRef:
+                name: btcpay-network-config
+            - secretRef:
+                name: rpc-secrets
+          ports:
+            - containerPort: 32838

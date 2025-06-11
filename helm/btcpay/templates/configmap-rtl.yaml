@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rtl-config
+  namespace: {{ .Values.namespace }}
+data:
+  RTL-Config.json: |
+    {
+      "multiPass": "{{ .Values.rtl.multiPass }}",
+      "port": "{{ .Values.rtl.port }}",
+      "defaultNodeIndex": {{ .Values.rtl.defaultNodeIndex }},
+      "SSO": {
+        "rtlSSO": {{ .Values.rtl.sso.rtlSSO }},
+        "rtlCookiePath": "{{ .Values.rtl.sso.rtlCookiePath }}",
+        "logoutRedirectLink": "{{ .Values.rtl.sso.logoutRedirectLink }}"
+      },
+      "nodes": [
+        {
+          "index": {{ .Values.rtl.nodes.index }},
+          "lnNode": "{{ .Values.rtl.nodes.lnNode }}",
+          "lnImplementation": "{{ .Values.rtl.nodes.lnImplementation }}",
+          "Authentication": {
+            "macaroonPath": "{{ .Values.rtl.nodes.authentication.macaroonPath }}",
+            "certPath": "{{ .Values.rtl.nodes.authentication.certPath }}"
+          },
+          "Settings": {
+            "userPersona": "{{ .Values.rtl.nodes.settings.userPersona }}",
+            "themeMode": "{{ .Values.rtl.nodes.settings.themeMode }}",
+            "themeColor": "{{ .Values.rtl.nodes.settings.themeColor }}",
+            "bitcoindConfigPath": "{{ .Values.rtl.nodes.settings.bitcoindConfigPath }}",
+            "channelBackupPath": "{{ .Values.rtl.nodes.settings.channelBackupPath }}"
+          }
+        }
+      ]
+    }

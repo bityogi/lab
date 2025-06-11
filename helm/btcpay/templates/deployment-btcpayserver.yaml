@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: btcpayserver
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: btcpayserver
+  template:
+    metadata:
+      labels:
+        app: btcpayserver
+    spec:
+      initContainers:
+        - name: copy-lnd-creds
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+              while [ ! -f /lnd/data/chain/bitcoin/{{ .Values.network }}/admin.macaroon ]; do
+                echo "Waiting for LND macaroon..."
+                sleep 2
+              done
+              cp /lnd/data/chain/bitcoin/{{ .Values.network }}/admin.macaroon /lnd/admin.macaroon
+          volumeMounts:
+            - name: lnd-data
+              mountPath: /lnd
+      containers:
+        - name: btcpayserver
+          image: {{ .Values.btcpayserver.image }}
+          env:
+            - name: BTCPAY_NETWORK
+              value: {{ .Values.network }}
+            - name: RPC_USER
+              valueFrom:
+                secretKeyRef:
+                  name: rpc-secrets
+                  key: RPC_USER
+            - name: RPC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rpc-secrets
+                  key: RPC_PASSWORD
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: rpc-secrets
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rpc-secrets
+                  key: POSTGRES_PASSWORD
+            - name: BTCPAY_POSTGRES
+              value: "Host=postgres;Port=5432;Username=$(POSTGRES_USER);Password=$(POSTGRES_PASSWORD);Database=btcpay"
+            - name: BTCPAY_BTCRPCURL
+              value: "http://{{ .Values.rpcUser }}:{{ .Values.rpcPassword }}@bitcoind:18443/"
+            - name: BTCPAY_BTCEXPLORERURL
+              value: "http://{{ .Values.rpcUser }}:{{ .Values.rpcPassword }}@nbxplorer:32838/"
+            - name: BTCPAY_BTCNBXPLORERURL
+              value: "http://{{ .Values.rpcUser }}:{{ .Values.rpcPassword }}@nbxplorer:32838/"
+            - name: BTCPAY_BTCEXTERNALURL
+              value: "http://localhost:23000/"
+            - name: BTCPAY_LNDRPCURL
+              value: "https://lnd:8080/"
+            - name: BTCPAY_LNDGRPCURL
+              value: "lnd:10009"
+            - name: BTCPAY_LNDMACAROONDIR
+              value: "/lnd"
+            - name: BTCPAY_LNDCERTDIR
+              value: "/lnd"
+            - name: ASPNETCORE_URLS
+              value: "http://0.0.0.0:23002"
+          ports:
+            - containerPort: 23002
+          volumeMounts:
+            - name: lnd-data
+              mountPath: /lnd
+              readOnly: false
+      volumes:
+        - name: lnd-data
+          persistentVolumeClaim:
+            claimName: lnd-data-pvc
