@@ -61,9 +61,28 @@ nbxplorer:
 btcpayserver:
   enabled: true
   replicaCount: 1
+  image:
+    repository: btcpayserver/btcpayserver
+    tag: "1.13.0"
+  initContainerImage: busybox
   service:
     type: ClusterIP
     port: 23002
+  lndDataPvc: lnd-data-pvc
+  networkConfigMap: btcpay-network-config
+  rpcSecrets: rpc-secrets
+  postgres: "Host=db;Port=5432;Username=$(POSTGRES_USER);Password=$(POSTGRES_PASSWORD);Database=btcpay"
+  btcrpcurl: "http://$(RPC_USER):$(RPC_PASSWORD)@bitcoind:18443/"
+  btcexplorerurl: "http://nbxplorer:32838/"
+  btcnbxplorerurl: "http://nbxplorer:32838/"
+  btcexternalurl: "http://localhost:23000/"
+  lndrpcurl: "https://lnd:8080/"
+  lndgrpcurl: "lnd:10009"
+  lndmacaroondir: "/lnd"
+  lndcertdir: "/lnd"
+  aspnetcoreUrls: "http://0.0.0.0:23002"
+  regtestBtcLightning: "type=lnd-rest;server=https://lnd:8080/;macaroonfilepath=/lnd/admin.macaroon;certthumbprint=7f3f8dc0b35dc5b51752897e0e6bee4f624fb9ba74bbb4f8519e3914eb4d14c7"
+  logs: "Debug"
 
 rtl:
   enabled: true
