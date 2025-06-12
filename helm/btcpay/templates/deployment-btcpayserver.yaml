@@ -2,9 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: btcpayserver
-  namespace: {{ .Values.namespace }}
+  namespace: { { .Release.Namespace } }
+  labels:
+    app: btcpayserver
 spec:
-  replicas: 1
+  replicas: { { .Values.btcpayserver.replicaCount | default 1 } }
   selector:
     matchLabels:
       app: btcpayserver
@@ -15,65 +17,168 @@ spec:
     spec:
       initContainers:
         - name: copy-lnd-creds
-          image: busybox
+          image:
+            { { .Values.btcpayserver.initContainerImage | default "busybox" } }
           command:
             - sh
             - -c
             - |
-              while [ ! -f /lnd/data/chain/bitcoin/{{ .Values.network }}/admin.macaroon ]; do
+              while [ ! -f /lnd/data/chain/bitcoin/${BTCPAY_NETWORK:-testnet}/admin.macaroon ]; do
                 echo "Waiting for LND macaroon..."
                 sleep 2
               done
-              cp /lnd/data/chain/bitcoin/{{ .Values.network }}/admin.macaroon /lnd/admin.macaroon
+              cp /lnd/data/chain/bitcoin/${BTCPAY_NETWORK:-testnet}/admin.macaroon /lnd/admin.macaroon
+          env:
+            - name: BTCPAY_NETWORK
+              valueFrom:
+                configMapKeyRef:
+                  name:
+                    {
+                      {
+                        .Values.btcpayserver.networkConfigMap | default "btcpay-network-config",
+                      },
+                    }
+                  key: BITCOIN_NETWORK
           volumeMounts:
             - name: lnd-data
               mountPath: /lnd
       containers:
         - name: btcpayserver
-          image: {{ .Values.btcpayserver.image }}
+          image:
+            {
+              {
+                .Values.btcpayserver.image | default "btcpayserver/btcpayserver:1.13.0",
+              },
+            }
           env:
             - name: BTCPAY_NETWORK
-              value: {{ .Values.network }}
+              valueFrom:
+                configMapKeyRef:
+                  name:
+                    {
+                      {
+                        .Values.btcpayserver.networkConfigMap | default "btcpay-network-config",
+                      },
+                    }
+                  key: BITCOIN_NETWORK
+
             - name: RPC_USER
               valueFrom:
                 secretKeyRef:
-                  name: rpc-secrets
+                  name:
+                    {
+                      {
+                        .Values.btcpayserver.rpcSecrets | default "rpc-secrets",
+                      },
+                    }
                   key: RPC_USER
             - name: RPC_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: rpc-secrets
+                  name:
+                    {
+                      {
+                        .Values.btcpayserver.rpcSecrets | default "rpc-secrets",
+                      },
+                    }
                   key: RPC_PASSWORD
+
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: rpc-secrets
+                  name:
+                    {
+                      {
+                        .Values.btcpayserver.rpcSecrets | default "rpc-secrets",
+                      },
+                    }
                   key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: rpc-secrets
+                  name:
+                    {
+                      {
+                        .Values.btcpayserver.rpcSecrets | default "rpc-secrets",
+                      },
+                    }
                   key: POSTGRES_PASSWORD
+
             - name: BTCPAY_POSTGRES
-              value: "Host=postgres;Port=5432;Username=$(POSTGRES_USER);Password=$(POSTGRES_PASSWORD);Database=btcpay"
+              value:
+                {
+                  {
+                    .Values.btcpayserver.postgres | default "Host=postgres;Port=5432;Username=$(POSTGRES_USER);Password=$(POSTGRES_PASSWORD);Database=btcpay" | quote,
+                  },
+                }
             - name: BTCPAY_BTCRPCURL
-              value: "http://{{ .Values.rpcUser }}:{{ .Values.rpcPassword }}@bitcoind:18443/"
+              value:
+                {
+                  {
+                    .Values.btcpayserver.btcrpcurl | default "http://raptcuser:securepass@bitcoind:18443/" | quote,
+                  },
+                }
             - name: BTCPAY_BTCEXPLORERURL
-              value: "http://{{ .Values.rpcUser }}:{{ .Values.rpcPassword }}@nbxplorer:32838/"
+              value:
+                {
+                  {
+                    .Values.btcpayserver.btcexplorerurl | default "http://raptcuser:securepass@nbxplorer:32838/" | quote,
+                  },
+                }
             - name: BTCPAY_BTCNBXPLORERURL
-              value: "http://{{ .Values.rpcUser }}:{{ .Values.rpcPassword }}@nbxplorer:32838/"
+              value:
+                {
+                  {
+                    .Values.btcpayserver.btcnbxplorerurl | default "http://raptcuser:securepass@nbxplorer:32838/" | quote,
+                  },
+                }
             - name: BTCPAY_BTCEXTERNALURL
-              value: "http://localhost:23000/"
+              value:
+                {
+                  {
+                    .Values.btcpayserver.btcexternalurl | default "http://localhost:23000/" | quote,
+                  },
+                }
             - name: BTCPAY_LNDRPCURL
-              value: "https://lnd:8080/"
+              value:
+                {
+                  {
+                    .Values.btcpayserver.lndrpcurl | default "https://lnd:8080/" | quote,
+                  },
+                }
             - name: BTCPAY_LNDGRPCURL
-              value: "lnd:10009"
+              value:
+                {
+                  {
+                    .Values.btcpayserver.lndgrpcurl | default "lnd:10009" | quote,
+                  },
+                }
             - name: BTCPAY_LNDMACAROONDIR
-              value: "/lnd"
+              value:
+                {
+                  {
+                    .Values.btcpayserver.lndmacaroondir | default "/lnd" | quote,
+                  },
+                }
             - name: BTCPAY_LNDCERTDIR
-              value: "/lnd"
+              value:
+                { { .Values.btcpayserver.lndcertdir | default "/lnd" | quote } }
             - name: ASPNETCORE_URLS
-              value: "http://0.0.0.0:23002"
+              value:
+                {
+                  {
+                    .Values.btcpayserver.aspnetcoreUrls | default "http://0.0.0.0:23002" | quote,
+                  },
+                }
+            - name: BTCPAY_REGTEST_BTC_LIGHTNING
+              value:
+                {
+                  {
+                    .Values.btcpayserver.regtestBtcLightning | default "type=lnd-rest;server=https://lnd:8080/;macaroonfilepath=/lnd/admin.macaroon;certthumbprint=7f3f8dc0b35dc5b51752897e0e6bee4f624fb9ba74bbb4f8519e3914eb4d14c7" | quote,
+                  },
+                }
+            - name: BTCPAY_LOGS
+              value: { { .Values.btcpayserver.logs | default "Debug" | quote } }
           ports:
             - containerPort: 23002
           volumeMounts:
@@ -83,4 +188,5 @@ spec:
       volumes:
         - name: lnd-data
           persistentVolumeClaim:
-            claimName: lnd-data-pvc
+            claimName:
+              { { .Values.btcpayserver.lndDataPvc | default "lnd-data-pvc" } }

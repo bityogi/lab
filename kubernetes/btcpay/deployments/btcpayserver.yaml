@@ -43,6 +43,7 @@ spec:
                 configMapKeyRef:
                   name: btcpay-network-config
                   key: BITCOIN_NETWORK
+
             - name: RPC_USER
               valueFrom:
                 secretKeyRef:
@@ -53,6 +54,7 @@ spec:
                 secretKeyRef:
                   name: rpc-secrets
                   key: RPC_PASSWORD
+
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
@@ -63,6 +65,7 @@ spec:
                 secretKeyRef:
                   name: rpc-secrets
                   key: POSTGRES_PASSWORD
+
             - name: BTCPAY_POSTGRES
               value: "Host=postgres;Port=5432;Username=$(POSTGRES_USER);Password=$(POSTGRES_PASSWORD);Database=btcpay"
             - name: BTCPAY_BTCRPCURL
@@ -83,13 +86,35 @@ spec:
               value: "/lnd"
             - name: ASPNETCORE_URLS
               value: "http://0.0.0.0:23002"
-            - name: BTCPAY_BTC_LIGHTNING
-              value: "type=lnd-rest;server=https://lnd:8080/;macaroonfilepath=/lnd/admin.macaroon;certthumbprint=$(BTC_LIGHTNING_CERTTHUMBPRINT)"
-            - name: BTC_LIGHTNING_CERTTHUMBPRINT
-              valueFrom:
-                secretKeyRef:
-                  name: rpc-secrets
-                  key: BTC_LIGHTNING_CERTTHUMBPRINT
+            - name: BTCPAY_REGTEST_BTC_LIGHTNING
+              value: "type=lnd-rest;server=https://lnd:8080/;macaroonfilepath=/lnd/admin.macaroon;certthumbprint=7f3f8dc0b35dc5b51752897e0e6bee4f624fb9ba74bbb4f8519e3914eb4d14c7"
+            - name: BTCPAY_LOGS
+              value: "Debug"
+
+            # - name: BTCPAY_REGTEST_BTC_LIGHTNING_TYPE
+            #   value: "lnd-rest"
+            # - name: BTCPAY_REGTEST_BTC_LIGHTNING_SERVER
+            #   value: "https://lnd:8080/"
+            # - name: BTCPAY_REGTEST_BTC_LIGHTNING_MACAROONFILEPATH
+            #   value: "/lnd/admin.macaroon"
+            # - name: BTCPAY_REGTEST_BTC_LIGHTNING_CERTTHUMBPRINT
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: rpc-secrets
+            #       key: BTC_LIGHTNING_CERTTHUMBPRINT
+
+            # Commented-out generic lightning config (for mainnet)
+            # - name: BTCPAY_BTC_LIGHTNING_TYPE
+            #   value: "lnd-rest"
+            # - name: BTCPAY_BTC_LIGHTNING_SERVER
+            #   value: "https://lnd:8080/"
+            # - name: BTCPAY_BTC_LIGHTNING_MACAROONFILEPATH
+            #   value: "/lnd/admin.macaroon"
+            # - name: BTCPAY_BTC_LIGHTNING_CERTTHUMBPRINT
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: rpc-secrets
+            #       key: BTC_LIGHTNING_CERTTHUMBPRINT
 
           ports:
             - containerPort: 23002
